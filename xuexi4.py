@@ -6,7 +6,7 @@ Created on Wed May  1 18:15:33 2019
 """
 # -*- coding: utf-8 -*-
 #import urllib.request, urllib.parse, urllib.error
-import ssl
+#import ssl
 
 import requests
 
@@ -14,7 +14,6 @@ from bs4 import BeautifulSoup, Comment
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
@@ -56,8 +55,8 @@ def play_around(line):
     driver = webdriver.Firefox(proxy=proxy, executable_path='geckodriver',options=options)
     site = line.rstrip()
     driver.get(site)
-    element = WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.component_entry"))) #element
-    element = WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.mean_tray")))
+    WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.component_entry"))) #element
+    WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.mean_tray")))
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # check audio and del
     try:
@@ -87,17 +86,13 @@ def play_around(line):
     return outputline
 
 
+c = 0
+with open('rest_result.txt','w') as fout:
+    fout.writelines(play_around(line) for line in rest)
+    c += 1
+    print(c)
+fout.close()
 
-
-class CrawlThread(threading.Thread):
-    def __init__(self,ip):
-        super(CrawlThread, self).__init__()
-        self.ip=ip
-    def run(self):
-        with open('rest_result.txt','w') as fout:
-            fout.writelines(play_around(line) for line in rest)
-            print(1)
-            fout.close()
 
 class GetIpThread(threading.Thread):
     def __init__(self,fetchSecond):
@@ -109,7 +104,6 @@ class GetIpThread(threading.Thread):
             res = requests.get(urlapi).content.decode()
             ip = res.split('\n')
             ip = res.rstrip()
-            CrawlThread(ip).start()
             time.sleep(self.fetchSecond)
 
 if __name__=='__main__':
