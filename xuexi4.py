@@ -33,13 +33,14 @@ options.add_argument(f'user-agent={ua.random}')
 '''
 rest = open('rest.txt','r')
 urlapi ='http://api.ip.data5u.com/dynamic/get.html?order=109854aae7cc60f4ebfd7ca4537f6959&sep=3'
-'''
+
 def get_ip():
     res = requests.get(urlapi).content.decode()
     ip = res.rstrip()
     return ip
+
 ip = get_ip()
-'''
+
 
 def play_around(line):
     start = time.time()
@@ -55,8 +56,11 @@ def play_around(line):
     driver = webdriver.Firefox(proxy=proxy, executable_path='geckodriver',options=options)
     site = line.rstrip()
     driver.get(site)
-    WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.component_entry"))) #element
-    WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.mean_tray")))
+    try:
+        WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.component_entry"))) #element
+        WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.mean_tray")))
+    except:
+        time.sleep(5)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # check audio and del
     try:
@@ -83,6 +87,7 @@ def play_around(line):
         print(str(end - start))
     except:
         outputline = 'NOT FOUND' + line + '\n</>\n'
+    print(outputline)
     return outputline
 
 
