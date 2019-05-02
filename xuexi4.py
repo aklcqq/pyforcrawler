@@ -16,6 +16,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 import time
@@ -23,30 +24,36 @@ import threading
 
 #from urllib.error import URLError, HTTPError, ContentTooShortError
 ###################
+from fake_useragent import UserAgent
 
-
-#from fake_useragent import UserAgent
-
+ua = UserAgent()
+'''
+options = Options()
+options.add_argument('-headless')
+options.add_argument(f'user-agent={ua.random}')
+'''
 rest = open('rest.txt','r')
 urlapi ='http://api.ip.data5u.com/dynamic/get.html?order=109854aae7cc60f4ebfd7ca4537f6959&sep=3'
-
+'''
 def get_ip():
     res = requests.get(urlapi).content.decode()
     ip = res.rstrip()
     return ip
 ip = get_ip()
-proxy = Proxy({
+'''
+
+def play_around(line):
+    start = time.time()
+    options = Options()
+    options.add_argument('-headless')
+    options.add_argument(f'user-agent={ua.random}')
+    proxy = Proxy({
         'proxyType': ProxyType.MANUAL,
         'httpProxy': ip,
         'ftpProxy': ip,
         'sslProxy': ip,
         })
-
-driver = webdriver.Firefox(proxy=proxy)
-
-def play_around(line):
-    start = time.time()
-
+    driver = webdriver.Firefox(proxy=proxy, executable_path='geckodriver',options=options)
     site = line.rstrip()
     driver.get(site)
     element = WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.component_entry"))) #element
@@ -89,7 +96,7 @@ class CrawlThread(threading.Thread):
     def run(self):
         with open('rest_result.txt','w') as fout:
             fout.writelines(play_around(line) for line in rest)
-            print(line)
+            print(1)
             fout.close()
 
 class GetIpThread(threading.Thread):
@@ -109,6 +116,3 @@ if __name__=='__main__':
     urlapi ='http://api.ip.data5u.com/dynamic/get.html?order=109854aae7cc60f4ebfd7ca4537f6959&sep=3'
     fetchSecond = 5
     GetIpThread(fetchSecond).start()
-    rest = open('rest.txt','r')
-    
-
