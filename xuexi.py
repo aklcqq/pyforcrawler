@@ -102,7 +102,8 @@ class CrawlThread(threading.Thread):
                         sa.write(site + '\n')
                 except:
                     print('no',line)
-                time.sleep(2)
+                    sa.write('00000' + line + '\n')
+                time.sleep(5)
             sa.close()
             stop = time.time()
         print(int(stop) - int(start))
