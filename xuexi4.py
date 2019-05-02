@@ -25,27 +25,32 @@ import threading
 ###################
 
 
-from fake_useragent import UserAgent
+#from fake_useragent import UserAgent
 
 rest = open('rest.txt','r')
+urlapi ='http://api.ip.data5u.com/dynamic/get.html?order=109854aae7cc60f4ebfd7ca4537f6959&sep=3'
 
-
-
-def play_around(line):
-    start = time.time()
-    proxy = Proxy({
+def get_ip():
+    res = requests.get(urlapi).content.decode()
+    ip = res.rstrip()
+    return ip
+ip = get_ip()
+proxy = Proxy({
         'proxyType': ProxyType.MANUAL,
         'httpProxy': ip,
         'ftpProxy': ip,
         'sslProxy': ip,
         })
 
+driver = webdriver.Firefox(proxy=proxy)
+
+def play_around(line):
+    start = time.time()
+
     site = line.rstrip()
-    
-    driver = webdriver.Firefox(proxy=proxy)
     driver.get(site)
-    WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.component_entry"))) #element
-    WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.mean_tray")))
+    element = WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.component_entry"))) #element
+    element = WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.mean_tray")))
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # check audio and del
     try:
@@ -84,6 +89,7 @@ class CrawlThread(threading.Thread):
     def run(self):
         with open('rest_result.txt','w') as fout:
             fout.writelines(play_around(line) for line in rest)
+            print(line)
             fout.close()
 
 class GetIpThread(threading.Thread):
