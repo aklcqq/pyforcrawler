@@ -79,7 +79,7 @@ def get_site(vocab, num_retries=4):
 
 
 
-fh = open('raw.txt','r')
+fh = open('xiaocidian.txt','r')
 start = time.time()
 
 class CrawlThread(threading.Thread):
